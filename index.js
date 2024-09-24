@@ -48,4 +48,4 @@ const server = app.listen(8000, () => {
     console.log(`server: ${host}:${port}`)
 });
 
-export { app };
+module.exports = app;

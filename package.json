@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "a mail track util",
   "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "dev": "cross-env dotenv_config_path=.env node -r dotenv/config index.js"
+    "serve": "cross-env dotenv_config_path=.env node -r dotenv/config index.js",
+    "build": "vercel"
   },
   "author": "tutu",
   "license": "ISC",
