@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mail Track</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #root {
+            width: 320px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: .6rem;
+        }
+
+        .form-item {
+            margin-bottom: 1rem;
+        }
+
+        .form-item label {
+            display: block;
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: .5rem;
+        }
+
+        .form-item label[for]:has(+input:required)::after {
+            content: " *";
+            color: red;
+        }
+
+        .form-item input {
+            width: 100%;
+            padding: 0.5rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        .form-item input:focus {
+            border: 1px solid #51a5ff;
+        }
+
+        .form-item button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: .4rem 2rem;
+            font-size: 1rem;
+        }
+
+        .form-item button:hover {
+            background-color: #0070e7;
+            cursor: pointer;
+        }
+
+        .form-item button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        #result {
+            text-align: center;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #result.hidden {
+            display: none;
+        }
+
+        #result #image-container {
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent), linear-gradient(-45deg, #ccc 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+            border: 1px solid #ccc;
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+
+        #result img {
+            transform: translate(-50%, -50%) scale(40);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+        }
+
+        #result p {
+            margin-top: .4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <h1>Mail Track</h1>
+        <form action="#" method="post" id="mail-form">
+            <div class="form-item">
+                <label for="email">收件邮箱</label>
+                <input type="email" name="email" id="email" placeholder="请输入收件邮箱"
+                    pattern="^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$" required>
+            </div>
+            <div class="form-item">
+                <label for="title">邮件标题</label>
+                <input type="text" name="title" id="title" placeholder="请输入邮件标题" pattern="^[A-Za-z0-9\u4e00-\u9fa5]+$"
+                    required>
+            </div>
+            <div class="form-item">
+                <button type="submit">生成追踪图片</button>
+            </div>
+        </form>
+        <div id="result" class="hidden">
+            <div id="image-container"></div>
+            <p>请右击复制图片并粘贴至您的邮件中！</p>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('mail-form');
+        const result = document.getElementById('result');
+        const imageContainer = document.getElementById('image-container');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch("/", {
+                method: "POST",
+                body: JSON.stringify(Object.fromEntries(formData)),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(res => res.json()).then(({ msg, data }) => {
+                imageContainer.innerHTML = `<img src="/${data}" alt="追踪图片">`;
+                result.classList.remove('hidden');
+            })
+        });
+    </script>
+</body>
+
+</html>
