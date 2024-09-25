@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/favicon.ico">
     <title>Mail Track</title>
     <style>
         * {
@@ -78,19 +79,24 @@
         }
 
         #result {
-            text-align: center;
             width: 100%;
+            margin-top: 2rem;
+        }
+
+        #result #loading,
+        #result #image-container,
+        #result #error {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        #result.hidden {
-            display: none;
+        .hidden {
+            display: none !important;
         }
 
-        #result #image-container {
+        #result #image {
             background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent), linear-gradient(-45deg, #ccc 25%, transparent 25%, transparent), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%);
             background-size: 10px 10px;
             background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
@@ -110,6 +116,53 @@
         #result p {
             margin-top: .4rem;
         }
+
+        #loading .spinner {
+            border: 4px solid #ccc;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #error .icon {
+            height: 40px;
+            width: 40px;
+            border-radius: 50%;
+            background-color: #ff0000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #error .icon::before,
+        #error .icon::after {
+            content: "";
+            height: 24px;
+            width: 4px;
+            border-radius: 2px;
+            background-color: #fff;
+            position: absolute;
+        }
+
+        #error .icon::before {
+            transform: rotate(45deg);
+        }
+
+        #error .icon::after {
+            transform: rotate(-45deg);
+        }
     </style>
 </head>
 
@@ -128,21 +181,38 @@
                     required>
             </div>
             <div class="form-item">
-                <button type="submit">生成追踪图片</button>
+                <button type="submit" id="submit">生成追踪图片</button>
             </div>
         </form>
-        <div id="result" class="hidden">
-            <div id="image-container"></div>
-            <p>请右击复制图片并粘贴至您的邮件中！</p>
+        <div id="result">
+            <div class="hidden" id="image-container">
+                <div id="image"></div>
+                <p>请右击复制图片并粘贴至您的邮件中！</p>
+            </div>
+            <div class="hidden" id="loading">
+                <div class="spinner"></div>
+                <p>生成中...</p>
+            </div>
+            <div class="hidden" id="error">
+                <div class="icon"></div>
+                <p>生成失败，请稍后再试！</p>
+            </div>
         </div>
     </div>
 
     <script>
         const form = document.getElementById('mail-form');
-        const result = document.getElementById('result');
+        const image = document.getElementById('image');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const submit = document.getElementById('submit');
         const imageContainer = document.getElementById('image-container');
         form.addEventListener('submit', function (event) {
             event.preventDefault();
+            submit.setAttribute('disabled', 'disabled');
+            imageContainer.classList.add('hidden');
+            loading.classList.remove('hidden');
+            error.classList.add('hidden');
             const formData = new FormData(form);
             fetch("/", {
                 method: "POST",
@@ -151,8 +221,13 @@
                     "Content-Type": "application/json"
                 }
             }).then(res => res.json()).then(({ msg, data }) => {
-                imageContainer.innerHTML = `<img src="/${data}" alt="追踪图片">`;
-                result.classList.remove('hidden');
+                image.innerHTML = `<img src="/${data}">`;
+                imageContainer.classList.remove('hidden');
+            }).catch(err => {
+                error.classList.remove('hidden');
+            }).finally(() => {
+                submit.removeAttribute('disabled');
+                loading.classList.add('hidden');
             })
         });
     </script>

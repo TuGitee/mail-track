@@ -1,7 +1,7 @@
 import { db, trackTableName } from "./db.js";
 
-export const addTrack = (id, title, uid, email) => new Promise((resolve, reject) => {
-    db.query(`INSERT INTO ${trackTableName} (id, title, uid, email) VALUES ($1, $2, $3, $4) RETURNING id`, [id, title, uid, email]).then((result) => {
+export const addTrack = (id, title, uid, email, hash) => new Promise((resolve, reject) => {
+    db.query(`INSERT INTO ${trackTableName} (id, title, uid, email, hash) VALUES ($1, $2, $3, $4, $5) RETURNING id`, [id, title, uid, email, hash]).then((result) => {
         resolve(result.rows.pop().id)
     }).catch(reject)
 })
